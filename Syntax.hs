@@ -14,6 +14,7 @@ data Expr =
   FApp Expr Expr |
   Cond Expr Expr Expr |
   Let Name Expr Expr |
-  BinOp Op Expr Expr
+  BinOp Op Expr Expr |
+  Rcd [(Name, Expr)]
     deriving (Show, Eq)
 

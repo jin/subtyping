@@ -13,7 +13,7 @@ lexer = Tok.makeTokenParser style
     style = emptyDef {
         Tok.commentLine = "#", 
         Tok.reservedOpNames = opNames,
-        Tok.reservedNames = ["let", "in", "fn", "fun", "=", "if", "else", "then", "=>"] 
+        Tok.reservedNames = ["let", "in", "fn", "fun", "=", "if", "else", "then", "=>", "{", "}", ","] 
     }
 
 integer :: Parser Integer

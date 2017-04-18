@@ -76,6 +76,23 @@ condExpr = do
   elseBranch <- expr
   return $ Cond predicate ifBranch elseBranch
 
+-- Records
+-- e.g. { a = 2, foo = true, c = 4 + 2 }
+rcdExpr :: Parser Expr
+rcdExpr = do
+  reserved "{"
+  fields <- rcdFields
+  reserved "}"
+  return $ Rcd fields
+
+rcdPair = do
+  lbl <- identifier
+  reserved "="
+  value <- expr
+  return (lbl, value)
+
+rcdFields = sepBy rcdPair (spaces *> char ',' <* spaces)
+
 expr :: Parser Expr
 expr = Exp.buildExpressionParser opTable exprParsers
 
@@ -101,6 +118,7 @@ exprParsers = varExpr
           <|> fnExpr
           <|> funExpr
           <|> condExpr
+          <|> rcdExpr
           <|> intExpr
           <|> strExpr 
           <|> parens expr

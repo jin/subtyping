@@ -20,3 +20,9 @@ fun f x => fn y => y
 let g = 2 in 3 + 5
 let g = fn y => y in g (3 * 5)
 let g = fun h x => x (fn y => y) in g (fn z => z)
+{}
+{ }
+{ x = 2 }
+{ y = 2,z = true }
+{ y = 2, z = true, foo = 3 * 4 }
+{ y = 2, z = { a = 3, b = 3, c = { d = false } } }
