@@ -71,27 +71,26 @@ condExpr = do
   reserved "if"
   predicate <- expr
   reserved "then"
-  ifBranch <- expr
+  thenBranch <- expr
   reserved "else"
   elseBranch <- expr
-  return $ Cond predicate ifBranch elseBranch
+  return $ Cond predicate thenBranch elseBranch
 
 -- Records
--- e.g. { a = 2, foo = true, c = 4 + 2 }
+-- Nested records are permitted
+-- e.g. { a = 2, foo = true, c = 4 + 2, d = { bar = false } }
 rcdExpr :: Parser Expr
 rcdExpr = do
   reserved "{"
-  fields <- rcdFields
+  fields <- sepBy rcdField (spaces *> char ',' <* spaces)
   reserved "}"
   return $ Rcd fields
 
-rcdPair = do
+rcdField = do
   lbl <- identifier
   reserved "="
   value <- expr
   return (lbl, value)
-
-rcdFields = sepBy rcdPair (spaces *> char ',' <* spaces)
 
 expr :: Parser Expr
 expr = Exp.buildExpressionParser opTable exprParsers
