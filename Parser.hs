@@ -3,6 +3,7 @@
 
 module Parser where
 
+import Prelude hiding (GT, LT)
 import Text.Parsec
 import Text.Parsec.String (Parser)
 import qualified Text.Parsec.Expr as Exp
@@ -36,7 +37,7 @@ varExpr = do
 letExpr :: Parser Expr
 letExpr = do
   reserved "let"
-  var <- identifier
+  var <- varExpr
   reserved "="
   expr' <- expr
   reserved "in"
@@ -44,14 +45,14 @@ letExpr = do
   return $ Let var expr' body
 
 -- Anonymous function
--- e.g. fn x y => x + y
+-- e.g. fn x => x + 1
 fnExpr :: Parser Expr
 fnExpr = do
   reserved "fn"
-  vars <- identifier
+  var <- identifier
   reserved "=>"
   body <- expr
-  return $ Fn vars body
+  return $ Fn var body
 
 -- Named function
 -- e.g. fun f x y => x + y
@@ -95,22 +96,24 @@ rcdField = do
 expr :: Parser Expr
 expr = Exp.buildExpressionParser opTable exprParsers
 
--- The table of operations on expressions. 
+-- The table of operations on expressions.
 --
 -- Parsec uses this table to take care of associativity and precedence automatically.
 -- The table is ordered by descending precedence, where operators in the same row having the same precedence.
 opTable = [[Exp.Infix spacef Exp.AssocLeft],
            [binaryOp "*" Mul Exp.AssocLeft, binaryOp "/" Div Exp.AssocLeft],
            [binaryOp "+" Add Exp.AssocLeft, binaryOp "-" Sub Exp.AssocLeft],
-           [binaryOp "<=" LTE Exp.AssocLeft, binaryOp ">=" GTE Exp.AssocLeft, binaryOp "==" Equal Exp.AssocLeft],
+           [binaryOp "<=" LTE Exp.AssocLeft, binaryOp ">=" GTE Exp.AssocLeft,
+            binaryOp "<" LT Exp.AssocLeft, binaryOp ">" GT Exp.AssocLeft,
+            binaryOp "==" Equal Exp.AssocLeft],
            [typingOp "::" Exp.AssocLeft]]
-  where 
+  where
     typingOp s = Exp.Infix (reservedOp s >> return TypedExpr)
     binaryOp s op = Exp.Infix (reservedOp s >> return (BinOp op))
     -- Treat spaces as a binary operator for function application
     -- http://stackoverflow.com/questions/22904287/parsing-functional-application-with-parsec
-    spacef = whiteSpace 
-      *> notFollowedBy (choice . map reservedOp $ opNames) 
+    spacef = whiteSpace
+      *> notFollowedBy (choice . map reservedOp $ opNames)
       >> return FApp
 
 exprParsers = varExpr
@@ -120,7 +123,7 @@ exprParsers = varExpr
           <|> condExpr
           <|> rcdExpr
           <|> intExpr
-          <|> strExpr 
+          <|> strExpr
           <|> parens expr
 
 parseExpr :: String -> Either ParseError Expr

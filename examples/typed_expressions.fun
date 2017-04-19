@@ -8,4 +8,6 @@ false :: bool
 2 == -3 :: bool
 4 <= 3 :: bool
 5 > 3 :: bool
-if 2 <= 3 then 4 else 5 :: bool
+(3 :: int) + (4 :: int) :: int
+(if 2 <= 3 then 4 else 5) :: bool
+(let x = 2 in let y = 3 in x + y) :: int
