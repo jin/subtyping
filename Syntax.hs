@@ -1,6 +1,6 @@
 module Syntax where
 
-data Op = Add | Sub | Mul | Div | GTE | LTE | Equal deriving (Show, Eq)
+data Op = Add | Sub | Mul | Div | GTE | LTE | Equal | TypeOf deriving (Show, Eq)
 
 type Name = String
 
@@ -15,6 +15,6 @@ data Expr =
   Cond Expr Expr Expr |
   Let Name Expr Expr |
   BinOp Op Expr Expr |
+  TypedExpr Expr Expr |
   Rcd [(Name, Expr)]
     deriving (Show, Eq)
-

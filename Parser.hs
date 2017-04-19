@@ -102,9 +102,10 @@ expr = Exp.buildExpressionParser opTable exprParsers
 opTable = [[Exp.Infix spacef Exp.AssocLeft],
            [binaryOp "*" Mul Exp.AssocLeft, binaryOp "/" Div Exp.AssocLeft],
            [binaryOp "+" Add Exp.AssocLeft, binaryOp "-" Sub Exp.AssocLeft],
-           [binaryOp "<=" LTE Exp.AssocLeft, binaryOp ">=" GTE Exp.AssocLeft, 
-            binaryOp "==" Equal Exp.AssocLeft]]
+           [binaryOp "<=" LTE Exp.AssocLeft, binaryOp ">=" GTE Exp.AssocLeft, binaryOp "==" Equal Exp.AssocLeft],
+           [typingOp "::" Exp.AssocLeft]]
   where 
+    typingOp s = Exp.Infix (reservedOp s >> return TypedExpr)
     binaryOp s op = Exp.Infix (reservedOp s >> return (BinOp op))
     -- Treat spaces as a binary operator for function application
     -- http://stackoverflow.com/questions/22904287/parsing-functional-application-with-parsec
