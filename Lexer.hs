@@ -5,7 +5,7 @@ import Text.Parsec.Language (emptyDef)
 import qualified Text.Parsec.Token as Tok
 
 opNames :: [String]
-opNames = ["+", "*", "-", "/", "==", ">=", "<=", "::", ">", "<"]
+opNames = ["+", "*", "-", "/", "==", ">=", "<=", "::", ">", "<", "."]
 
 lexer :: Tok.TokenParser ()
 lexer = Tok.makeTokenParser style

@@ -2,19 +2,26 @@ module Syntax where
 
 data Op = Add | Sub | Mul | Div | GTE | GT | LTE | LT | Equal deriving (Show, Eq)
 
+data Ty = RcdTy [(String, Ty)]
+        | ArrowTy Ty Ty
+        | TopTy
+        | IntTy
+        | BoolTy
+        deriving (Show, Eq)
+
 type Name = String
 
 data Expr =
   I Int |
-  S String |
-  B Bool |
+  -- S String |
+  -- B Bool |
   Var Name |
   Fn Name Expr |
-  Fun Name Name Expr |
+  -- Fun Name Name Expr |
   FApp Expr Expr |
-  Cond Expr Expr Expr |
-  Let Expr Expr Expr |
-  BinOp Op Expr Expr |
-  TypedExpr Expr Expr |
-  Rcd [(Name, Expr)]
+  -- Cond Expr Expr Expr |
+  -- Let Expr Expr Expr |
+  -- BinOp Op Expr Expr |
+  Rcd [(Name, Expr)] |
+  RcdProj Expr Expr
     deriving (Show, Eq)
