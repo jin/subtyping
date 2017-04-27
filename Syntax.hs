@@ -3,8 +3,8 @@ module Syntax where
 data Op = Add | Sub | Mul | Div | GTE | GT | LTE | LT | Equal deriving (Show, Eq)
 
 data Ty = RcdTy [(String, Ty)]
-        | ArrowTy Ty Ty
-        | TopTy
+        -- | ArrowTy Ty Ty
+        -- | TopTy
         | IntTy
         | BoolTy
         deriving (Show, Eq)
@@ -12,10 +12,10 @@ data Ty = RcdTy [(String, Ty)]
 type Name = String
 
 data Expr =
-  I Int |
+  I Int Ty |
   -- S String |
-  -- B Bool |
-  Var Name |
+  B Bool Ty |
+  Var Name Ty |
   Fn Name Expr |
   -- Fun Name Name Expr |
   FApp Expr Expr |

@@ -11,10 +11,32 @@ import qualified Text.Parsec.Expr as Exp
 import Lexer
 import Syntax
 
+errorUnknownType :: String -> a
+errorUnknownType tyName = error $ "Unknown type: " ++ tyName
+
+errorTypeMismatch :: Ty -> Ty -> a
+errorTypeMismatch expected actual = error $ "Type mismatch: expected " ++ show expected ++ ", got " ++ show actual
+
+basicType :: Parser Ty
+basicType = do
+  tyName <- identifier
+  case tyName of
+       "Int" -> return IntTy
+       "Bool" -> return BoolTy
+       _ -> errorUnknownType tyName
+
+exprType :: Parser Ty
+exprType = do 
+  reserved "::" 
+  basicType
+
 intExpr :: Parser Expr
 intExpr = do
   n <- integer
-  return $ I (fromInteger n) -- n is an Integer, we want Int
+  ty <- exprType
+  case ty of
+       IntTy -> return $ I (fromInteger n) IntTy -- n is an Integer, we want Int
+       _ -> errorTypeMismatch IntTy ty
 
 -- strExpr :: Parser Expr
 -- strExpr = do
@@ -26,12 +48,12 @@ intExpr = do
 varExpr :: Parser Expr
 varExpr = do
   var <- identifier
-  -- return $ filterKeywords var
-  return $ Var var
-    -- where
-      -- filterKeywords "true" = B True
-      -- filterKeywords "false" = B False
-      -- filterKeywords v = Var v
+  ty <- exprType
+  return $ filterKeywords var ty
+    where
+      filterKeywords "true" BoolTy = B True BoolTy
+      filterKeywords "false" BoolTy = B False BoolTy
+      filterKeywords v ty = Var v ty
 
 -- Let expression
 -- e.g. let x = 3 in x + 2
