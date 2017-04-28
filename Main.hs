@@ -5,7 +5,7 @@ import System.Console.Haskeline
 import System.Environment
 
 import Parser (parseExpr)
-import Typecheck
+import Typecheck (typecheckExpr)
 
 process :: String -> IO ()
 process line = case parseExpr line of
@@ -13,7 +13,11 @@ process line = case parseExpr line of
   Right ex -> do 
     putStrLn line
     print ex
+    putStrLn res
     putStrLn ""
+      where res = case typecheckExpr ex of 
+                       Left err -> "Typecheck FAIL: " ++ err
+                       Right ty -> "Typecheck OK: " ++ show ty
 
 -- https://hackage.haskell.org/package/haskeline-0.7.3.1/docs/System-Console-Haskeline.html
 runRepl :: IO ()

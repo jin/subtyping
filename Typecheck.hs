@@ -1,4 +1,4 @@
-module Typecheck where
+module Typecheck (typecheckExpr) where
 
 import Syntax
 import Data.Map (Map)
@@ -38,10 +38,16 @@ typecheck _ (B _ BoolTy) = Right BoolTy
 typecheck env (Var v) = case getType v env of
                              Just ty -> Right ty
                              Nothing -> Left $ "Variable " ++ v ++ " is not defined in the environment." 
-typecheck env (Fn arg body (ArrowTy ty1 ty2)) = 
-  let newEnv = bindType arg ty1 env in
-  case typecheck newEnv body of
-       Left err -> Left err
-       Right bodyTy -> 
-         if ty2 == bodyTy then Right (ArrowTy ty1 ty2) else Left "Incorrect function type. TODO: elaborate"
-typecheck _ _ = Left "Error" 
+typecheck env (Fn arg body ty) = 
+  case ty of
+       ArrowTy ty1 ty2 -> let newEnv = bindType arg ty1 env in
+                          case typecheck newEnv body of
+                               Left err -> Left err
+                               Right bodyTy -> if ty2 == bodyTy 
+                                                  then Right (ArrowTy ty1 ty2) 
+                                                  else Left "Incorrect function type. TODO: elaborate"
+       t -> Left $ "Expected Arrow type, got " ++ show t
+typecheck _ _ = Left "Error: Unknown type. TODO: elaborate" 
+
+typecheckExpr :: Expr -> Either String Ty
+typecheckExpr = typecheck emptyEnv
