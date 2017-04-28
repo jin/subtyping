@@ -5,6 +5,7 @@ import System.Console.Haskeline
 import System.Environment
 
 import Parser (parseExpr)
+import Typecheck
 
 process :: String -> IO ()
 process line = case parseExpr line of
