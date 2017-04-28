@@ -22,7 +22,7 @@ process line = case parseExpr line of
   Right ex -> do 
     putStrLn $ "[Expression]: " ++ line
     putStrLn $ "[Typecheck] " ++ res
-    putStrLn $ "[AST]: " ++ show ex
+    -- putStrLn $ "[AST]: " ++ show ex
     putStrLn ""
       where res = case typecheckExpr ex of 
                        Left err -> "[" ++ ansiRed ++ "FAIL" ++ ansiReset ++ "]: " ++ err
