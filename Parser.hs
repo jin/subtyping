@@ -39,14 +39,14 @@ rcdFieldType = do
   ty <- typeParsers
   return (lbl, ty)
 
+basicTypes = basicType <|> rcdType
+
 fnType :: Parser Ty
 fnType = do
   ty1 <- basicTypes
   reserved "->"
   ty2 <- basicTypes
   return $ ArrowTy ty1 ty2
-
-basicTypes = basicType <|> rcdType
 
 typeParsers :: Parser Ty
 typeParsers = basicTypes <|> fnType
@@ -152,17 +152,15 @@ expr = Exp.buildExpressionParser opTable exprParsers
 -- Parsec uses this table to take care of associativity and precedence automatically.
 -- The table is ordered by descending precedence, where operators in the same row having the same precedence.
 opTable = [[Exp.Infix spacef Exp.AssocLeft],
-           -- [binaryOp "*" Mul Exp.AssocLeft, binaryOp "/" Div Exp.AssocLeft],
-           -- [binaryOp "+" Add Exp.AssocLeft, binaryOp "-" Sub Exp.AssocLeft],
-           -- [binaryOp "<=" LTE Exp.AssocLeft, binaryOp ">=" GTE Exp.AssocLeft,
-            -- binaryOp "<" LT Exp.AssocLeft, binaryOp ">" GT Exp.AssocLeft,
-            -- binaryOp "==" Equal Exp.AssocLeft]]
-           -- [typingOp "::" Exp.AssocLeft]]
+           [binaryOp "*" Mul Exp.AssocLeft, binaryOp "/" Div Exp.AssocLeft],
+           [binaryOp "+" Add Exp.AssocLeft, binaryOp "-" Sub Exp.AssocLeft],
+           [binaryOp "<=" LTE Exp.AssocLeft, binaryOp ">=" GTE Exp.AssocLeft,
+            binaryOp "<" LT Exp.AssocLeft, binaryOp ">" GT Exp.AssocLeft,
+            binaryOp "==" Equal Exp.AssocLeft],
            [projectionOp "." Exp.AssocLeft]]
   where
     projectionOp s = Exp.Infix $ reservedOp s >> return RcdProj
-    -- typingOp s = Exp.Infix (reservedOp s >> return (flip TypedExpr) Nothing)
-    -- binaryOp s op = Exp.Infix (reservedOp s >> return (BinOp op))
+    binaryOp s op = Exp.Infix (reservedOp s >> return (BinOp op))
     -- Treat spaces as a binary operator for function application
     -- http://stackoverflow.com/questions/22904287/parsing-functional-application-with-parsec
     spacef = whiteSpace

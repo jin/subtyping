@@ -21,7 +21,7 @@ data Expr =
   FApp Expr Expr |
   -- Cond Expr Expr Expr |
   -- Let Expr Expr Expr |
-  -- BinOp Op Expr Expr |
+  BinOp Op Expr Expr |
   Rcd [(Name, Expr)] Ty |
   RcdProj Expr Expr
     deriving (Show, Eq)
