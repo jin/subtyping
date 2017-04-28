@@ -21,11 +21,11 @@ process line = case parseExpr line of
   Left err -> print err
   Right ex -> do 
     putStrLn $ "[Expression]: " ++ line
-    putStrLn $ "[AST]: " ++ show ex
     putStrLn $ "[Typecheck] " ++ res
+    putStrLn $ "[AST]: " ++ show ex
     putStrLn ""
       where res = case typecheckExpr ex of 
-                       Left err -> "[" ++ ansiRed ++ "FAIL" ++ ansiReset ++ "]: " ++ show err
+                       Left err -> "[" ++ ansiRed ++ "FAIL" ++ ansiReset ++ "]: " ++ err
                        Right ty -> "[" ++ ansiGreen ++ "OK" ++ ansiReset ++ "]: " ++ show ty
 
 -- https://hackage.haskell.org/package/haskeline-0.7.3.1/docs/System-Console-Haskeline.html

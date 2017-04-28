@@ -1,5 +1,6 @@
 module Typecheck (typecheckExpr) where
 
+import Error
 import Syntax
 import Data.Map (Map)
 import qualified Data.Map as Map
@@ -25,28 +26,35 @@ isSubtype (RcdTy xs) (RcdTy ys) = all sub ys -- Record subtyping
                              Nothing -> False
 isSubtype ty1 ty2 = ty1 == ty2
 
--- infer env (FApp e1 e2) = do
---   (t1, s1) <- infer env e1
---   (t2, s2) <- infer (substEnv s1 env) e2
---   fVar     <- fresh
---   s3       <- unify (substType s2 t1) (ArrowT t2 fVar)
---   return (substType s3 fVar, s3 ++ s2 ++ s1)
-
 typecheck :: TypeEnv -> Expr -> Either String Ty
 typecheck _ (I _ IntTy) = Right IntTy
 typecheck _ (B _ BoolTy) = Right BoolTy 
 typecheck env (Var v) = case getType v env of
-                             Just ty -> Right ty
-                             Nothing -> Left $ "Variable " ++ v ++ " is not defined in the environment." 
+                           Just ty -> Right ty
+                           Nothing -> Left $ "Variable " ++ v ++ " is not defined in the environment." 
 typecheck env (Fn arg body ty) = 
-  case ty of
-       ArrowTy ty1 ty2 -> let newEnv = bindType arg ty1 env in
-                          case typecheck newEnv body of
-                               Left err -> Left err
-                               Right bodyTy -> if ty2 == bodyTy 
-                                                  then Right (ArrowTy ty1 ty2) 
-                                                  else Left "Incorrect function type. TODO: elaborate"
-       t -> Left $ "Expected Arrow type, got " ++ show t
+  case ty of 
+    ArrowTy ty1 ty2 -> let newEnv = bindType arg ty1 env in
+                       case typecheck newEnv body of
+                            Left err -> Left err
+                            Right bodyTy -> if isSubtype bodyTy ty2
+                                               then Right (ArrowTy ty1 ty2) 
+                                               else Left $ mismatchMsg ty2 bodyTy
+    t -> Left $ "Expected Arrow type, got " ++ show t
+typecheck env (Rcd xs (RcdTy ty)) = if all check ty then Right (RcdTy ty) else Left "Incorrect record type"
+  where check (lbl, t1) = case lookup lbl xs of
+                             Just e -> case typecheck env e of 
+                                            Left _ -> False
+                                            Right t2 -> isSubtype t2 t1 
+                             Nothing -> False
+typecheck env (FApp fn arg) = 
+  case typecheck env fn of 
+       Left err -> Left err
+       Right (ArrowTy t1 t2) ->
+           case typecheck env arg of
+                Left err -> Left err
+                Right argType -> if isSubtype argType t1 then Right t2 else Left "Incorrect argument type."
+       Right t -> Left $ "Expected Arrow type, got " ++ show t 
 typecheck _ _ = Left "Error: Unknown type. TODO: elaborate" 
 
 typecheckExpr :: Expr -> Either String Ty
