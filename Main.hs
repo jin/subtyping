@@ -4,6 +4,7 @@ import Control.Monad.Trans
 import System.Console.Haskeline
 import System.Environment
 
+import Syntax (prettyTy)
 import Parser (parseExpr)
 import Typecheck (typecheckExpr)
 
@@ -26,7 +27,7 @@ process line = case parseExpr line of
     putStrLn ""
       where res = case typecheckExpr ex of 
                        Left err -> "[" ++ ansiRed ++ "FAIL" ++ ansiReset ++ "]: " ++ err
-                       Right ty -> "[" ++ ansiGreen ++ "OK" ++ ansiReset ++ "]: " ++ show ty
+                       Right ty -> "[" ++ ansiGreen ++ "OK" ++ ansiReset ++ "]: " ++ prettyTy ty
 
 -- https://hackage.haskell.org/package/haskeline-0.7.3.1/docs/System-Console-Haskeline.html
 runRepl :: IO ()

@@ -19,3 +19,8 @@ false
 (fn x :: ({ a: Int } -> Int) => x.a) { a = 2 } :: { a : Int }
 (fn x :: ({ a: Int } -> Bool) => x.a) { a = 2 } :: { a : Int }
 (fn x :: ({ a: Int } -> { a: Int, b: Int }) => { a = x.a, b = 3 } :: { a: Int, b: Int }) { a = 2 } :: { a : Int }
+(fn x :: ({ a: { c : Int} } -> Int) => x.a.c) { a = { c = 4 } :: { c : Int }, b = 3 } :: { a: { c : Int }, b: Int }
+(fn x :: ({ a: Int, b: Int } -> Int) => x.b) { a = 2 } :: { a: Int }
+(fn x :: ({ a: { b: Int, c: Int } } -> Int) => x.a.b) { a = { b = 2, c = 3 } :: { b: Int, c : Int } } :: { a: { b: Int, c: Int } }
+(fn x :: ({ a: { b: Int } } -> Int) => x.a.b) { a = { b = 2, c = 3 } :: { b: Int, c : Int } } :: { a: { b: Int, c: Int } }
+(fn x :: ({ a: { b: Int, c: Int } } -> Int) => x.a.b) { a = { c = 3 } :: { c : Int } } :: { a: { c: Int } }
