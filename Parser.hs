@@ -15,7 +15,8 @@ errorUnknownType :: String -> a
 errorUnknownType tyName = error $ "Unknown type: " ++ tyName
 
 errorTypeMismatch :: Ty -> Ty -> a
-errorTypeMismatch expected actual = error $ "Type mismatch: expected " ++ show expected ++ ", got " ++ show actual
+errorTypeMismatch expected actual =
+  error $ "Type mismatch: expected " ++ show expected ++ ", got " ++ show actual
 
 basicType :: Parser Ty
 basicType = do
@@ -25,18 +26,44 @@ basicType = do
        "Bool" -> return BoolTy
        _ -> errorUnknownType tyName
 
+rcdType :: Parser Ty
+rcdType = do
+  reserved "{"
+  fields <- sepBy rcdFieldType (spaces *> char ',' <* spaces)
+  reserved "}"
+  return $ RcdTy fields
+
+rcdFieldType = do
+  lbl <- identifier
+  reserved ":"
+  ty <- typeParsers
+  return (lbl, ty)
+
+fnType :: Parser Ty
+fnType = do
+  ty1 <- basicTypes
+  reserved "->"
+  ty2 <- basicTypes
+  return $ ArrowTy ty1 ty2
+
+basicTypes = basicType <|> rcdType
+
+typeParsers :: Parser Ty
+typeParsers = basicTypes <|> fnType
+
 exprType :: Parser Ty
-exprType = do 
-  reserved "::" 
-  basicType
+exprType = do
+  reserved "::"
+  typeParsers
 
 intExpr :: Parser Expr
 intExpr = do
   n <- integer
-  ty <- exprType
-  case ty of
-       IntTy -> return $ I (fromInteger n) IntTy -- n is an Integer, we want Int
-       _ -> errorTypeMismatch IntTy ty
+  return $ I (fromInteger n) IntTy -- n is an Integer, we want Int
+  -- ty <- exprType
+  -- case ty of
+       -- IntTy -> return $ I (fromInteger n) IntTy -- n is an Integer, we want Int
+       -- _ -> errorTypeMismatch IntTy ty
 
 -- strExpr :: Parser Expr
 -- strExpr = do
@@ -48,12 +75,10 @@ intExpr = do
 varExpr :: Parser Expr
 varExpr = do
   var <- identifier
-  ty <- exprType
-  return $ filterKeywords var ty
-    where
-      filterKeywords "true" BoolTy = B True BoolTy
-      filterKeywords "false" BoolTy = B False BoolTy
-      filterKeywords v ty = Var v ty
+  case var of
+       "true" -> return $ B True BoolTy
+       "false" -> return $ B False BoolTy
+       v -> return $ Var v
 
 -- Let expression
 -- e.g. let x = 3 in x + 2
@@ -73,9 +98,11 @@ fnExpr :: Parser Expr
 fnExpr = do
   reserved "fn"
   var <- identifier
+  reserved "::"
+  ty <- parens fnType
   reserved "=>"
   body <- expr
-  return $ Fn var body
+  return $ Fn var body ty
 
 -- Named function
 -- e.g. fun f x y => x + y
@@ -108,7 +135,8 @@ rcdExpr = do
   reserved "{"
   fields <- sepBy rcdField (spaces *> char ',' <* spaces)
   reserved "}"
-  return $ Rcd fields
+  ty <- exprType
+  return $ Rcd fields ty
 
 rcdField = do
   lbl <- identifier
