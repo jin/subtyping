@@ -13,7 +13,7 @@ data Ty = IntTy
 prettyTy :: Ty -> String
 prettyTy (RcdTy xs) = "{ " ++ prettyRcds xs ++ " }"
   where prettyRcds = intercalate ", " . map (\(lbl, ty) -> lbl ++ ": " ++ prettyTy ty)
-prettyTy (ArrowTy x1 x2) = prettyTy x1 ++ " -> " ++ prettyTy x2
+prettyTy (ArrowTy x1 x2) = "(" ++ prettyTy x1 ++ " -> " ++ prettyTy x2 ++ ")"
 prettyTy IntTy = "Int"
 prettyTy BoolTy = "Bool"
 

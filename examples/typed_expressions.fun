@@ -25,3 +25,13 @@ false
 (fn x :: ({ a: { b: Int } } -> Int) => x.a.b) { a = { b = 2, c = 3 } :: { b: Int, c : Int } } :: { a: { b: Int, c: Int } }
 (fn x :: ({ a: { b: Int, c: Int } } -> Int) => x.a.b) { a = { c = 3 } :: { c : Int } } :: { a: { c: Int } }
 (fn x :: ({ a: { b: Int, c: Int } } -> { a: Int } ) => { a = x.a.c, b = x.a.b } :: { a: Int, b: Int }) { a = { b = 3, c = 3 } :: { b: Int, c: Int } } :: { a: { b: Int, c: Int } }
+(fn x :: ((Int -> Int) -> (Int -> Int)) => 2)
+(fn x :: ((Int -> Int) -> (Int -> Int)) => fn x :: (Int -> Int) => 2)
+(fn x :: ((Int -> Int) -> Int) => x 2) (fn y :: (Int -> Int) => y)
+(fn x :: ((Int -> Int) -> Int) => x 2) (fn y :: ({ a: Int } -> { a: Int }) => y)
+(fn x :: (({ a: Int } -> { a: Int }) -> { a: Int }) => x { a = 2 } :: { a: Int }) (fn y :: ({ a: Int, b: Int } -> { a: Int }) => y)
+(fn x :: (({ a: Int } -> { a: Int, b: Int }) -> { a: Int }) => x { a = 2 } :: { a: Int }) (fn y :: ({ a: Int } -> { a: Int }) => y)
+(fn x :: (({ a: Int } -> { a: Int }) -> { a: Int }) => x { a = 2 } :: { a: Int }) (fn y :: ({ a: Int } -> { a: Int, b: Int }) => { a = y.a, b = 2 } :: { a: Int, b: Int })
+(fn x :: (({ a: Int, b: Int } -> { a: Int }) -> { a: Int }) => x { a = 2, b = 2 } :: { a: Int, b: Int }) (fn y :: ({ a: Int } -> { a: Int }) => { a = y.a } :: { a: Int })
+(fn x :: (({ a: Int, c: Int } -> { a: Int }) -> { a: Int }) => x { a = 2, b = 2 } :: { a: Int, b: Int }) (fn y :: ({ a: Int } -> { a: Int }) => { a = y.a } :: { a: Int })
+(fn x :: (({ a: Int } -> { a: Int }) -> { a: Int }) => x { a = 2 } :: { a: Int }) (fn y :: ({ a: Int } -> { a: Int }) => y)

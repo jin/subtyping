@@ -30,47 +30,46 @@ isSubtype ty1 ty2 = ty1 == ty2
 
 typecheck :: TypeEnv -> Expr -> Either String Ty
 typecheck _ (I _ IntTy) = Right IntTy
-typecheck _ (B _ BoolTy) = Right BoolTy 
-typecheck env (Var v) = 
+typecheck _ (B _ BoolTy) = Right BoolTy
+typecheck env (Var v) =
   case getType v env of
        Just ty -> Right ty
-       Nothing -> Left $ "Variable " ++ v ++ " is not defined" 
-typecheck env (Fn arg body ty) = 
-  case ty of 
-    ArrowTy ty1 ty2 -> 
+       Nothing -> Left $ v ++ " is not defined"
+typecheck env (Fn arg body ty) =
+  case ty of
+    ArrowTy ty1 ty2 ->
       let newEnv = bindType arg ty1 env in
         case typecheck newEnv body of
              Left err -> Left err
-             Right bodyTy -> if isSubtype (ArrowTy ty1 bodyTy) ty 
-                                then Right ty 
+             Right bodyTy -> if isSubtype (ArrowTy ty1 bodyTy) ty
+                                then Right ty
                                 else Left $ mismatchMsg ty2 bodyTy
     t -> Left $ "Expected Arrow type, got " ++ prettyTy t
-typecheck env (Rcd xs (RcdTy ty)) = 
+typecheck env (Rcd xs (RcdTy ty)) =
   if all check ty then Right (RcdTy ty) else Left "Incorrect record type"
     where check (lbl, t1) = case lookup lbl xs of
-                                 Just e -> case typecheck env e of 
+                                 Just e -> case typecheck env e of
                                                 Left _ -> False
-                                                Right t2 -> isSubtype t2 t1 
+                                                Right t2 -> isSubtype t2 t1
                                  Nothing -> False
 typecheck env (RcdProj rcd (Var lbl)) =
   case typecheck env rcd of
        Left err -> Left err
        Right (RcdTy fieldTys) -> case lookup lbl fieldTys of
-                                 Just ty -> Right ty 
+                                 Just ty -> Right ty
                                  Nothing -> Left $ "Unable to lookup field " ++ lbl ++ " in " ++ prettyTy (RcdTy fieldTys)
        Right t -> Left $ "Expected Record type, got " ++ prettyTy t
-
-typecheck env (FApp fn arg) = 
-  case typecheck env fn of 
+typecheck env (FApp fn arg) =
+  case typecheck env fn of
        Left err -> Left err
        Right (ArrowTy t1 t2) ->
            case typecheck env arg of
                 Left err -> Left err
-                Right argType -> 
-                  if isSubtype argType t1 then Right t2 
+                Right argType ->
+                  if isSubtype argType t1 then Right t2
                                           else Left $ "Invalid argument of type " ++ prettyTy argType ++ " is not a subtype of the parameter type " ++ prettyTy t1
-       Right t -> Left $ "Expected Arrow type, got " ++ prettyTy t 
--- typecheck env (RcdProj 
+       Right t -> Left $ "Expected Arrow type, got " ++ prettyTy t
+-- typecheck env (RcdProj
 typecheck _ e = Left $ "Error: Unknown type for " ++ show e
 
 typecheckExpr :: Expr -> Either String Ty

@@ -37,9 +37,9 @@ basicTypes = basicType <|> rcdType
 
 fnType :: Parser Ty
 fnType = do
-  ty1 <- basicTypes
+  ty1 <- try basicTypes <|> parens fnType
   reserved "->"
-  ty2 <- basicTypes
+  ty2 <- try basicTypes <|> parens fnType
   return $ ArrowTy ty1 ty2
 
 typeParsers :: Parser Ty
