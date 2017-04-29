@@ -14,7 +14,7 @@ emptyEnv :: TypeEnv
 emptyEnv = TypeEnv Map.empty
 
 bindType :: String -> Ty -> TypeEnv -> TypeEnv
-bindType label t (TypeEnv env) = TypeEnv (Map.insert label t env)
+bindType label t (TypeEnv env) = TypeEnv $ Map.insert label t env
 
 getType :: String -> TypeEnv -> Maybe Ty
 getType label (TypeEnv env) = Map.lookup label env

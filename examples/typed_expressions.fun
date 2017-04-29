@@ -24,3 +24,4 @@ false
 (fn x :: ({ a: { b: Int, c: Int } } -> Int) => x.a.b) { a = { b = 2, c = 3 } :: { b: Int, c : Int } } :: { a: { b: Int, c: Int } }
 (fn x :: ({ a: { b: Int } } -> Int) => x.a.b) { a = { b = 2, c = 3 } :: { b: Int, c : Int } } :: { a: { b: Int, c: Int } }
 (fn x :: ({ a: { b: Int, c: Int } } -> Int) => x.a.b) { a = { c = 3 } :: { c : Int } } :: { a: { c: Int } }
+(fn x :: ({ a: { b: Int, c: Int } } -> { a: Int } ) => { a = x.a.c, b = x.a.b } :: { a: Int, b: Int }) { a = { b = 3, c = 3 } :: { b: Int, c: Int } } :: { a: { b: Int, c: Int } }
