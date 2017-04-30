@@ -4,7 +4,11 @@
 a
 true
 false
-{ a = 2, b = 3, c = 4 } :: { a: Int, b: Int, c: Int }
+{ a = 2, b = 3 } :: { a: Int, b: Int }
+{ a = 2, b = true } :: { a: Int, b: Int }
+{ a = 2, b = 3 } :: { }
+{ a = 2, b = 3 } :: { a: Int }
+{ a = 2, b = 3 } :: { a: Int, b: Int, c: Int }
 { a = { d = 4 } :: { d : Int }, b = 3, c = 4 } :: { a : { d : Int }, b : Int, c : Int }
 { a = { d = 4 } :: { d : Int }, b = 3, c = 4 } :: { a : { d : Int } }
 { a = { d = 4 } :: { d : Int }, b = 3, c = 4 } :: { a : { c : Int } }
@@ -14,7 +18,11 @@ false
 (fn x :: (Int -> Int) => true)
 (fn x :: ({ a: Bool } -> Int) => x.a)
 (fn x :: ({ a: Int } -> Int) => x.b)
+(fn x :: ({ a: Int, b: Int } -> { a: Int }) => x)
+(fn x :: ({ a: Int } -> { a: Int, b: Int }) => x)
 (fn x :: ({ a: Int } -> Int) => x) { a = 2 } :: { a: Int }
+(fn x :: ({ a: Int } -> Int) => x.a) { a = 2 } :: { a: Int }
+(fn x :: ({ a: Bool } -> Bool) => x.a) { a = 2 } :: { a: Int }
 (fn x :: ({ a: Int, b: Int } -> { a: Int }) => x) { a = 2, b = 2, c = true } :: { a: Int, b: Int, c: Bool }
 (fn x :: ({ a: Int } -> Int) => x.a) { a = 2 } :: { a : Int }
 (fn x :: ({ a: Int } -> Bool) => x.a) { a = 2 } :: { a : Int }
@@ -35,3 +43,6 @@ false
 (fn x :: (({ a: Int, b: Int } -> { a: Int }) -> { a: Int }) => x { a = 2, b = 2 } :: { a: Int, b: Int }) (fn y :: ({ a: Int } -> { a: Int }) => { a = y.a } :: { a: Int })
 (fn x :: (({ a: Int, c: Int } -> { a: Int }) -> { a: Int }) => x { a = 2, b = 2 } :: { a: Int, b: Int }) (fn y :: ({ a: Int } -> { a: Int }) => { a = y.a } :: { a: Int })
 (fn x :: (({ a: Int } -> { a: Int }) -> { a: Int }) => x { a = 2 } :: { a: Int }) (fn y :: ({ a: Int } -> { a: Int }) => y)
+(fn x :: (({ a: Int } -> { a: Int }) -> ({ a: Int } -> { a: Int })) => x) (fn y :: ({ a: Int, b: Int } -> { a: Int }) => y)
+(fn x :: (({ a: Int, b: Int } -> { a: Int }) -> ({ a: Int, b: Int } -> { a: Int })) => x) (fn y :: ({ a: Int, b: Int } -> { a: Int, b: Int }) => y)
+(fn x :: (({ a: Int, b: Int } -> { a: Int }) -> ({ a: Int, b: Int } -> { a: Int })) => x) (fn y :: ({ a: Int } -> { a: Int, b: Int }) => { a = y.a, b = 2 } :: { a: Int, b: Int })

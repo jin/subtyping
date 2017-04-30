@@ -21,7 +21,7 @@ process :: String -> IO ()
 process line = case parseExpr line of
   Left err -> print err
   Right ex -> do 
-    putStrLn $ "[Expression]: " ++ line
+    putStrLn $ "[Expr]: " ++ line
     putStrLn $ "[Typecheck] " ++ res
     -- putStrLn $ "[AST]: " ++ show ex
     putStrLn ""
