@@ -6,11 +6,11 @@ The typechecker checks well-typedness of subtyping in records (depth, width, per
 
 ### Running
 
-Assuming Haskell is installed and the user is in the project directory, running the following command will invoke the typechecker: 
+Assuming Haskell is installed and the user is in the project directory, running the following command will invoke the typechecker:
 
 ```sh
 runhaskell Main.hs examples/typed_expressions.fun
-``` 
+```
 
 This produces an output similar to the following:
 
@@ -30,12 +30,12 @@ The components of the language comprises of a REPL/reader, lexer, parser and typ
 
 `Main.hs` is the entry point that takes in the filename for a file containing `FunSub` expressions. The lexer (`Lexer.hs`) defines reserved tokens and lexemes, and the parser (`Parser.hs`) uses `Parsec` on the tokens to generate an abstract syntax tree (AST) defined in `Syntax.hs`. Lastly, the AST is checked for well-typedness with rules defined in the typechecker (`Typecheck.hs`).
 
-### Example {#sec:example}
+### Example
 
 The following is a valid expression in the `FunSub` syntax:
 
 ```fun
-(fn x :: ({ a: Int, b: Int } -> { a: Int }) => x) 
+(fn x :: ({ a: Int, b: Int } -> { a: Int }) => x)
   { a = 2, b = 2, c = true } :: { a: Int, b: Int, c: Bool }
 ```
 
@@ -49,7 +49,7 @@ The two main functions of the typechecker are `typecheck` and `isSubtype`. Their
 
 ```hs
 -- Typecheck.hs
-newtype TypeEnv = TypeEnv (Map String Ty) 
+newtype TypeEnv = TypeEnv (Map String Ty)
 
 isSubtype :: Ty -> Ty -> Bool
 typecheck :: TypeEnv -> Expr -> Either String Ty
