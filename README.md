@@ -1,95 +1,59 @@
-# Depth & Width subtyping
+# FunSub: A toy language with structural subtyping
 
-This is an implementation of depth and width subtyping in Haskell.
+The purpose of this toy language is to provide a concrete realisation of subtyping concepts.
 
-## Example
-
-Running:
+Assuming Haskell is installed and the user is in the project directory, running the following command will invoke the typechecker: 
 
 ```sh
-runhaskell Main.hs examples/typed_expressions.fun
+runhaskell Main.hs examples/typed_expressions.fun}
+``` 
+
+This produces an output similar to the following:
+
 ```
-
-Output:
-```haskell
-[Expression]: 1
-[Typecheck] [OK]: Int
-
-[Expression]: -1
-[Typecheck] [OK]: Int
-
-[Expression]: 1
-[Typecheck] [OK]: Int
-
-[Expression]: a
-[Typecheck] [FAIL]: Variable a is not defined
-
-[Expression]: true
-[Typecheck] [OK]: Bool
-
-[Expression]: false
-[Typecheck] [OK]: Bool
-
-[Expression]: { a = 2, b = 3, c = 4 } :: { a: Int, b: Int, c: Int }
-[Typecheck] [OK]: { a: Int, b: Int, c: Int }
-
-[Expression]: { a = { d = 4 } :: { d : Int }, b = 3, c = 4 } :: { a : { d : Int }, b : Int, c : Int }
-[Typecheck] [OK]: { a: { d: Int }, b: Int, c: Int }
-
-[Expression]: { a = { d = 4 } :: { d : Int }, b = 3, c = 4 } :: { a : { d : Int } }
-[Typecheck] [OK]: { a: { d: Int } }
-
-[Expression]: { a = { d = 4 } :: { d : Int }, b = 3, c = 4 } :: { a : { c : Int } }
-[Typecheck] [FAIL]: Incorrect record type
-
-[Expression]: (fn x :: (Int -> Int) => x)
-[Typecheck] [OK]: Int -> Int
-
-[Expression]: (fn x :: (Int -> Int) => y)
-[Typecheck] [FAIL]: Variable y is not defined
-
+..
 [Expression]: (fn x :: (Int -> Int) => 2)
-[Typecheck] [OK]: Int -> Int
+[Typecheck][OK]: (Int -> Int)
 
 [Expression]: (fn x :: (Int -> Int) => true)
-[Typecheck] [FAIL]: Type mismatch: expected Int, got Bool
+[Typecheck][FAIL]: Type mismatch: expected Int, got Bool
+..
+```
 
-[Expression]: (fn x :: ({ a: Bool } -> Int) => x.a)
-[Typecheck] [FAIL]: Type mismatch: expected Int, got Bool
+### Architecture
 
-[Expression]: (fn x :: ({ a: Int } -> Int) => x.b)
-[Typecheck] [FAIL]: Unable to lookup field b in { a: Int }
+The components of the language comprises of a REPL/reader, lexer, parser and typechecker. Some examples of FunSub expressions are stored in the `examples/` folder.
 
-[Expression]: (fn x :: ({ a: Int } -> Int) => x) { a = 2 } :: { a: Int }
-[Typecheck] [FAIL]: Type mismatch: expected Int, got { a: Int }
+`Main.hs` is the entry point that takes in the filename for a file containing `FunSub` expressions. The lexer (`Lexer.hs`) defines reserved tokens and lexemes, and the parser (`Parser.hs`) uses `Parsec` on the tokens to generate an abstract syntax tree (AST) defined in `Syntax.hs`. Lastly, the AST is checked for well-typedness with rules defined in the typechecker (`Typecheck.hs`).
 
-[Expression]: (fn x :: ({ a: Int, b: Int } -> { a: Int }) => x) { a = 2, b = 2, c = true } :: { a: Int, b: Int, c: Bool }
-[Typecheck] [OK]: { a: Int }
+### Example {#sec:example}
 
-[Expression]: (fn x :: ({ a: Int } -> Int) => x.a) { a = 2 } :: { a : Int }
-[Typecheck] [OK]: Int
+The following is a valid expression in the `FunSub` syntax:
 
-[Expression]: (fn x :: ({ a: Int } -> Bool) => x.a) { a = 2 } :: { a : Int }
-[Typecheck] [FAIL]: Type mismatch: expected Bool, got Int
+```fun
+(fn x :: ({ a: Int, b: Int } -> { a: Int }) => x) 
+  { a = 2, b = 2, c = true } :: { a: Int, b: Int, c: Bool }
+```
 
-[Expression]: (fn x :: ({ a: Int } -> { a: Int, b: Int }) => { a = x.a, b = 3 } :: { a: Int, b: Int }) { a = 2 } :: { a : Int }
-[Typecheck] [OK]: { a: Int, b: Int }
+In type systems without subtyping, this function application will not
+typecheck because the record argument type does not match the parameter type, and the parameter type does not match the function body type even though it is an identity function. However in our subtyping
+implementation, we are able to use concepts such as *variance* , *width* and *depth* record subtyping to make this expression well-typed.
 
-[Expression]: (fn x :: ({ a: { c : Int} } -> Int) => x.a.c) { a = { c = 4 } :: { c : Int }, b = 3 } :: { a: { c : Int }, b: Int }
-[Typecheck] [OK]: Int
+### Implementation: Typechecker
 
-[Expression]: (fn x :: ({ a: Int, b: Int } -> Int) => x.b) { a = 2 } :: { a: Int }
-[Typecheck] [FAIL]: Invalid argument of type { a: Int } is not a subtype of the parameter type { a: Int, b: Int }
+The two main functions of the typechecker are `typecheck` and `isSubtype`. Their type signatures are defined as follows:
 
-[Expression]: (fn x :: ({ a: { b: Int, c: Int } } -> Int) => x.a.b) { a = { b = 2, c = 3 } :: { b: Int, c : Int } } :: { a: { b: Int, c: Int } }
-[Typecheck] [OK]: Int
+```hs
+-- Typecheck.hs
+newtype TypeEnv = TypeEnv (Map String Ty) 
 
-[Expression]: (fn x :: ({ a: { b: Int } } -> Int) => x.a.b) { a = { b = 2, c = 3 } :: { b: Int, c : Int } } :: { a: { b: Int, c: Int } }
-[Typecheck] [OK]: Int
+isSubtype :: Ty -> Ty -> Bool
+typecheck :: TypeEnv -> Expr -> Either String Ty
+```
 
-[Expression]: (fn x :: ({ a: { b: Int, c: Int } } -> Int) => x.a.b) { a = { c = 3 } :: { c : Int } } :: { a: { c: Int } }
-[Typecheck] [FAIL]: Invalid argument of type { a: { c: Int } } is not a subtype of the parameter type { a: { b: Int, c: Int } }```
+`isSubtype` takes in two types and recursively determines if the first
+type is a subtype of the second.
 
-## Width subtyping
-
-## Depth subtyping
+`typecheck` takes in a type environment (a mapping of variables to
+types) and an AST, and recursively determines if the expression is
+well-typed. If it is ill-typed, an error message describing the issue is bubbled up and handled in `Main.hs`. If it is well-typed, the exact type is returned to the caller.
