@@ -2,6 +2,10 @@
 
 The purpose of this toy language is to provide a concrete realisation of subtyping concepts.
 
+The typechecker checks well-typedness of subtyping in records (depth, width, permutation) and functions (contravariant in arg, covariant in retval).
+
+### Running
+
 Assuming Haskell is installed and the user is in the project directory, running the following command will invoke the typechecker: 
 
 ```sh
