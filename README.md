@@ -5,7 +5,7 @@ The purpose of this toy language is to provide a concrete realisation of subtypi
 Assuming Haskell is installed and the user is in the project directory, running the following command will invoke the typechecker: 
 
 ```sh
-runhaskell Main.hs examples/typed_expressions.fun}
+runhaskell Main.hs examples/typed_expressions.fun
 ``` 
 
 This produces an output similar to the following:
