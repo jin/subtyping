@@ -54,17 +54,6 @@ intExpr :: Parser Expr
 intExpr = do
   n <- integer
   return $ I (fromInteger n) IntTy -- n is an Integer, we want Int
-  -- ty <- exprType
-  -- case ty of
-       -- IntTy -> return $ I (fromInteger n) IntTy -- n is an Integer, we want Int
-       -- _ -> errorTypeMismatch IntTy ty
-
--- strExpr :: Parser Expr
--- strExpr = do
---   _ <- char '"'
---   x <- many (noneOf "\"")
---   _ <- char '"'
---   return $ S x
 
 varExpr :: Parser Expr
 varExpr = do
@@ -73,18 +62,6 @@ varExpr = do
        "true" -> return $ B True BoolTy
        "false" -> return $ B False BoolTy
        v -> return $ Var v
-
--- Let expression
--- e.g. let x = 3 in x + 2
--- letExpr :: Parser Expr
--- letExpr = do
---   reserved "let"
---   var <- varExpr
---   reserved "="
---   expr' <- expr
---   reserved "in"
---   body <- expr
---   return $ Let var expr' body
 
 -- Anonymous function
 -- e.g. fn x => x + 1
@@ -97,29 +74,6 @@ fnExpr = do
   reserved "=>"
   body <- expr
   return $ Fn var body ty
-
--- Named function
--- e.g. fun f x y => x + y
--- funExpr :: Parser Expr
--- funExpr = do
---   reserved "fun"
---   name <- identifier
---   vars <- identifier
---   reserved "=>"
---   body <- expr
---   return $ Fun name vars body
-
--- Conditionals
--- e.g. if x >= y then x else y
--- condExpr :: Parser Expr
--- condExpr = do
---   reserved "if"
---   predicate <- expr
---   reserved "then"
---   thenBranch <- expr
---   reserved "else"
---   elseBranch <- expr
---   return $ Cond predicate thenBranch elseBranch
 
 -- Records
 -- Nested records are permitted
@@ -146,15 +100,9 @@ expr = Exp.buildExpressionParser opTable exprParsers
 -- Parsec uses this table to take care of associativity and precedence automatically.
 -- The table is ordered by descending precedence, where operators in the same row having the same precedence.
 opTable = [[Exp.Infix spacef Exp.AssocLeft],
-           -- [binaryOp "*" Mul Exp.AssocLeft, binaryOp "/" Div Exp.AssocLeft],
-           -- [binaryOp "+" Add Exp.AssocLeft, binaryOp "-" Sub Exp.AssocLeft],
-           -- [binaryOp "<=" LTE Exp.AssocLeft, binaryOp ">=" GTE Exp.AssocLeft,
-           --  binaryOp "<" LT Exp.AssocLeft, binaryOp ">" GT Exp.AssocLeft,
-           --  binaryOp "==" Equal Exp.AssocLeft],
            [projectionOp "." Exp.AssocLeft]]
   where
     projectionOp s = Exp.Infix $ reservedOp s >> return RcdProj
-    -- binaryOp s op = Exp.Infix (reservedOp s >> return (BinOp op))
     -- Treat spaces as a binary operator for function application
     -- http://stackoverflow.com/questions/22904287/parsing-functional-application-with-parsec
     spacef = whiteSpace
@@ -162,13 +110,9 @@ opTable = [[Exp.Infix spacef Exp.AssocLeft],
       >> return FApp
 
 exprParsers = varExpr
-          -- <|> letExpr
           <|> fnExpr
-          -- <|> funExpr
-          -- <|> condExpr
           <|> rcdExpr
           <|> intExpr
-          -- <|> strExpr
           <|> parens expr
 
 parseExpr :: String -> Either ParseError Expr
