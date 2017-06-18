@@ -2,6 +2,8 @@
 
 The purpose of this toy language is to provide a concrete realisation of subtyping concepts.
 
+It is the accompaniment code of my technical report on Subtyping: [Subtyping: Overview and Implementation](http://jin.crypt.sg/files/subtyping.pdf)
+
 The typechecker checks well-typedness of subtyping in records (depth, width, permutation) and functions (contravariant in arg, covariant in retval).
 
 ### Running
