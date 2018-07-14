@@ -11,7 +11,7 @@ The typechecker checks well-typedness of subtyping in records (depth, width, per
 Assuming Haskell is installed and the user is in the project directory, running the following command will invoke the typechecker:
 
 ```sh
-runhaskell Main.hs examples/typed_expressions.fun
+$ runhaskell Main.hs examples/typed_expressions.fun
 ```
 
 This produces an output similar to the following:
@@ -25,6 +25,16 @@ This produces an output similar to the following:
 [Typecheck][FAIL]: Type mismatch: expected Int, got Bool
 ..
 ```
+
+This project can also be built with [Bazel](https://bazel.build) and the [Haskell rules](https://haskell.build)
+
+Ensure that `bazel` and `nix` are installed.
+
+```
+$ bazel build //:subtyping
+$ ./bazel-bin/subtyping  examples/typed_expressions.fun
+```
+
 
 ### Architecture
 
