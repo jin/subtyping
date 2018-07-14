@@ -13,20 +13,14 @@ haskell_toolchain(
   tools = "@ghc//:bin",
 )
 
-haskell_library(
-  name = "lib_subtyping",
-  srcs = glob(['**/*.hs']),
-  prebuilt_dependencies = [
-      "base", 
-      "parsec", 
-      "containers", 
-      "mtl", 
-      "haskeline"
-  ],
-  compiler_flags = ["-v"],
-)
-
 haskell_binary(
   name = "subtyping",
-  deps = [":lib_subtyping"],
+  srcs = glob(['*.hs']),
+    prebuilt_dependencies = [
+        "base",
+        "parsec",
+        "containers",
+        "mtl",
+        "haskeline"
+    ],
 )
